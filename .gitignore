@@ -1,0 +1,99 @@
+# ====================================
+# DEPENDENCIES
+# ====================================
+node_modules/
+**/node_modules/
+
+# ====================================
+# BUILD OUTPUT
+# ====================================
+dist/
+build/
+**/dist/
+**/build/
+
+# ====================================
+# ENVIRONMENT VARIABLES (CRITICAL!)
+# ====================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+**/.env
+**/.env.local
+
+# ====================================
+# LOGS
+# ====================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+
+# ====================================
+# OPERATING SYSTEM FILES
+# ====================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ====================================
+# IDE & EDITOR
+# ====================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ====================================
+# TEST COVERAGE
+# ====================================
+coverage/
+.nyc_output/
+
+# ====================================
+# UPLOADS & USER CONTENT
+# ====================================
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# ====================================
+# DATABASE FILES (Local SQLite/etc)
+# ====================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# ====================================
+# CACHE & TEMPORARY FILES
+# ====================================
+.cache/
+.temp/
+.tmp/
+*.tmp
+.eslintcache
+
+# ====================================
+# API DOCUMENTATION (OPTIONAL - Can be regenerated)
+# ====================================
+backend/postman_collection.json
+backend/DATABASE.md
+GIT_PUSH_GUIDE.md
+
+# ====================================
+# PACKAGE MANAGER LOCKS (OPTIONAL)
+# Uncomment if you want to ignore lock files
+# ====================================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
