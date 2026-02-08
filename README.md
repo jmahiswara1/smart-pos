@@ -137,3 +137,10 @@ Project ini dibangun menggunakan stack modern:
 ## Dokumentasi Postman
 
 > **[Lihat Dokumentasi Postman Lengkap](https://documenter.getpostman.com/view/50579029/2sBXc8qPpk)**
+
+## Kontak
+
+-   **Email**: gadangjatumahiswara@gmail.com
+-   **Instagram**: @j.mahiswara_
+-   **Portfolio**: https://gadangmahiswara.vercel.app
+
