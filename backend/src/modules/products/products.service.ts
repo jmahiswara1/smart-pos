@@ -123,10 +123,9 @@ export class ProductsService {
     }
 
     async remove(id: string) {
-        // Soft delete
-        return this.prisma.product.update({
+        // Hard delete - permanently remove from database
+        return this.prisma.product.delete({
             where: { id },
-            data: { isActive: false },
         });
     }
 

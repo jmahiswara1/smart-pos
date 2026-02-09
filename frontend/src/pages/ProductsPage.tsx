@@ -17,7 +17,7 @@ import {
     TableBody,
     TableCell,
 } from '../components/ui/Table';
-import { Pencil, Trash2, Search, Plus, Filter } from 'lucide-react';
+import { Pencil, Trash2, Search, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Dialog } from '../components/ui/Dialog';
 import ProductForm from '../components/products/ProductForm';
@@ -31,6 +31,8 @@ export default function ProductsPage() {
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
+    const [sortBy, setSortBy] = useState('createdAt');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
     const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -42,13 +44,15 @@ export default function ProductsPage() {
 
 
     const { data: response, isLoading } = useQuery<PaginatedResponse<Product>>({
-        queryKey: ['products', page, limit, debouncedSearch],
+        queryKey: ['products', page, limit, debouncedSearch, sortBy, sortOrder],
         queryFn: async () => {
             const { data } = await api.get('/products', {
                 params: {
                     page,
                     limit,
                     search: debouncedSearch || undefined,
+                    sortBy,
+                    sortOrder,
                 }
             });
             if (Array.isArray(data)) return { data, meta: { total: data.length, page: 1, limit: data.length, totalPages: 1 } };
@@ -116,9 +120,27 @@ export default function ProductsPage() {
                         className="pl-9 bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700 font-normal"
                     />
                 </div>
-                <Button variant="outline" className="dark:border-slate-700 dark:text-gray-300">
-                    <Filter className="mr-2 h-4 w-4" /> Filter
-                </Button>
+                <div className="flex items-center gap-2">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-900 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary"
+                    >
+                        <option value="name">Sort by Name</option>
+                        <option value="price">Sort by Price</option>
+                        <option value="stock">Sort by Stock</option>
+                        <option value="createdAt">Sort by Date</option>
+                    </select>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        className="dark:border-slate-700 dark:text-gray-300"
+                        title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                    >
+                        {sortOrder === 'asc' ? '↑' : '↓'}
+                    </Button>
+                </div>
             </div>
 
             <div className="rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 shadow-sm overflow-hidden transition-colors">

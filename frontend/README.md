@@ -8,7 +8,6 @@ Ini adalah bagian frontend dari aplikasi SmartPOS, dibangun menggunakan React, T
 -   **POS Terminal**: Antarmuka kasir yang dioptimalkan untuk kecepatan transaksi.
 -   **Manajemen Inventaris**: Tabel produk dengan fitur pencarian, filter, dan pagination server-side.
 -   **Desain Responsif**: Tampilan yang menyesuaikan dengan perangkat desktop dan tablet.
--   **Mode Gelap**: Dukungan tema gelap (Dark Mode).
 
 ## Teknologi Utama
 

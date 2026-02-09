@@ -61,8 +61,8 @@ export class CustomersController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Delete customer (soft delete)' })
-    remove(@Param('id') id: string) {
-        return this.customersService.remove(id);
+    @ApiOperation({ summary: 'Toggle customer active status' })
+    toggleActive(@Param('id') id: string) {
+        return this.customersService.toggleActive(id);
     }
 }

@@ -14,7 +14,7 @@ export class CustomersService {
     }
 
     async findAll(search?: string, page = 1, limit = 10) {
-        const where: any = { isActive: true };
+        const where: any = {};
 
         if (search) {
             where.OR = [
@@ -34,7 +34,10 @@ export class CustomersService {
                         select: { transactions: true },
                     },
                 },
-                orderBy: { createdAt: 'desc' },
+                orderBy: [
+                    { isActive: 'desc' }, // Active customers first
+                    { createdAt: 'desc' }, // Then sort by date
+                ],
             }),
             this.prisma.customer.count({ where }),
         ]);
@@ -75,10 +78,14 @@ export class CustomersService {
         });
     }
 
-    async remove(id: string) {
+    async toggleActive(id: string) {
+        const customer = await this.prisma.customer.findUnique({ where: { id } });
+        if (!customer) {
+            throw new Error('Customer not found');
+        }
         return this.prisma.customer.update({
             where: { id },
-            data: { isActive: false },
+            data: { isActive: !customer.isActive },
         });
     }
 

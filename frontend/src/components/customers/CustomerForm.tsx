@@ -15,7 +15,6 @@ const customerSchema = z.object({
     email: z.string().email('Invalid email').optional().or(z.literal('')),
     phone: z.string().optional(),
     address: z.string().optional(),
-    isActive: z.boolean().default(true),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -32,7 +31,6 @@ export default function CustomerForm({ initialData, onSuccess, onCancel }: Custo
     const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<CustomerFormValues>({
         resolver: zodResolver(customerSchema) as any,
         defaultValues: {
-            isActive: true,
             email: '',
             phone: '',
             address: '',
@@ -46,7 +44,6 @@ export default function CustomerForm({ initialData, onSuccess, onCancel }: Custo
                 email: initialData.email || '',
                 phone: initialData.phone || '',
                 address: initialData.address || '',
-                isActive: initialData.isActive,
             });
         }
     }, [initialData, reset]);
@@ -88,6 +85,7 @@ export default function CustomerForm({ initialData, onSuccess, onCancel }: Custo
         const formattedData = {
             ...data,
             email: data.email === '' ? undefined : data.email,
+            isActive: true, // Always set new customers as active
         };
 
         if (initialData) {
@@ -121,16 +119,6 @@ export default function CustomerForm({ initialData, onSuccess, onCancel }: Custo
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Address (Optional)</label>
                 <Textarea {...register('address')} placeholder="Customer address..." rows={3} />
-            </div>
-
-            <div className="flex items-center space-x-2">
-                <input
-                    type="checkbox"
-                    {...register('isActive')}
-                    id="isActive"
-                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <label htmlFor="isActive" className="text-sm font-medium">Active Customer</label>
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t mt-4">

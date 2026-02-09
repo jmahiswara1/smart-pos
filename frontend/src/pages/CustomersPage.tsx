@@ -14,16 +14,16 @@ import {
     TableCell,
 } from '../components/ui/Table';
 import { Dialog } from '../components/ui/Dialog';
-import { AlertDialog } from '../components/ui/AlertDialog';
 import CustomerForm from '../components/customers/CustomerForm';
 import toast from 'react-hot-toast';
 import {
     Plus,
     Search,
     Pencil,
-    Trash2,
     Mail,
-    Phone
+    Phone,
+    UserCheck,
+    UserX
 } from 'lucide-react';
 import { Skeleton } from '../components/ui/Skeleton';
 import SlideTransition from '../components/ui/SlideTransition';
@@ -38,7 +38,6 @@ export default function CustomersPage() {
     const [limit, setLimit] = useState(10);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
-    const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
 
     const [debouncedSearch] = useDebounce(search, 500);
 
@@ -60,18 +59,17 @@ export default function CustomersPage() {
     const customers = response?.data || [];
     const meta = response?.meta || { total: 0, page: 1, limit: 10, totalPages: 0 };
 
-    // Delete Mutation
-    const deleteMutation = useMutation({
+    // Toggle Active Mutation
+    const toggleMutation = useMutation({
         mutationFn: async (id: string) => {
             await api.delete(`/customers/${id}`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['customers'] });
-            toast.success('Customer deleted successfully');
-            setDeletingCustomer(null);
+            toast.success('Customer status updated successfully');
         },
         onError: (error: any) => {
-            toast.error(error.response?.data?.message || 'Failed to delete customer');
+            toast.error(error.response?.data?.message || 'Failed to update customer status');
         },
     });
 
@@ -85,10 +83,8 @@ export default function CustomersPage() {
         setEditingCustomer(undefined);
     };
 
-    const confirmDelete = () => {
-        if (deletingCustomer) {
-            deleteMutation.mutate(deletingCustomer.id);
-        }
+    const handleToggleActive = (customer: Customer) => {
+        toggleMutation.mutate(customer.id);
     };
 
     return (
@@ -174,7 +170,7 @@ export default function CustomersPage() {
                                         {formatRupiah(customer.totalPurchases)}
                                     </TableCell>
                                     <TableCell className="text-center">
-                                        <Badge variant={customer.isActive ? "default" : "secondary"}>
+                                        <Badge variant={customer.isActive ? "success" : "danger"}>
                                             {customer.isActive ? 'Active' : 'Inactive'}
                                         </Badge>
                                     </TableCell>
@@ -183,8 +179,17 @@ export default function CustomersPage() {
                                             <Button variant="ghost" size="icon" onClick={() => handleEdit(customer)} className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" onClick={() => setDeletingCustomer(customer)} className="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400">
-                                                <Trash2 className="h-4 w-4" />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleToggleActive(customer)}
+                                                className={customer.isActive
+                                                    ? "text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+                                                    : "text-gray-500 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400"
+                                                }
+                                                title={customer.isActive ? "Deactivate customer" : "Activate customer"}
+                                            >
+                                                {customer.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -216,14 +221,7 @@ export default function CustomersPage() {
                 />
             </Dialog>
 
-            <AlertDialog
-                isOpen={!!deletingCustomer}
-                onClose={() => setDeletingCustomer(null)}
-                onConfirm={confirmDelete}
-                title="Delete Customer"
-                description={`Are you sure you want to delete "${deletingCustomer?.name}"? This action cannot be undone.`}
-                isLoading={deleteMutation.isPending}
-            />
+
         </SlideTransition>
     );
 }

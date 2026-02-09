@@ -82,7 +82,7 @@ export class ProductsController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Delete product (soft delete)' })
+    @ApiOperation({ summary: 'Delete product permanently' })
     @ApiResponse({ status: 200, description: 'Product deleted successfully' })
     remove(@Param('id') id: string) {
         return this.productsService.remove(id);
