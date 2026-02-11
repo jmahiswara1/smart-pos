@@ -32,7 +32,6 @@ export class FilterProductDto {
 
     @ApiProperty({ required: false })
     @IsOptional()
-    @Transform(({ value }) => value === 'true')
     @IsBoolean()
     isActive?: boolean;
 

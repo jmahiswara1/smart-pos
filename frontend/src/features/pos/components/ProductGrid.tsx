@@ -37,7 +37,7 @@ export default function ProductGrid() {
     });
 
     const filteredProducts = products
-        ?.filter((p) => p.isActive && p.stock > 0)
+        ?.filter((p) => p.isActive)
         .filter((p) => {
             const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
                 p.sku.toLowerCase().includes(search.toLowerCase());
@@ -110,8 +110,8 @@ export default function ProductGrid() {
                         {filteredProducts?.map((product) => (
                             <div
                                 key={product.id}
-                                onClick={() => addItem(product)}
-                                className="group bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-primary/20 cursor-pointer transition-all overflow-hidden flex flex-col"
+                                onClick={() => product.stock > 0 && addItem(product)}
+                                className={`group bg-white dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-primary/20 cursor-pointer transition-all overflow-hidden flex flex-col ${product.stock === 0 ? 'opacity-60 cursor-not-allowed grayscale' : ''}`}
                             >
                                 <div className="aspect-[4/3] bg-gray-100 dark:bg-slate-900 relative overflow-hidden">
                                     {product.imageUrl ? (
