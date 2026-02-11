@@ -91,9 +91,11 @@ export class ProductsService {
             }
         }
 
-        // Filter by active status
+        // Filter by active status (default to true if not specified)
         if (isActive !== undefined) {
             where.isActive = isActive;
+        } else {
+            where.isActive = true;
         }
 
         const [data, total] = await Promise.all([
@@ -140,9 +142,10 @@ export class ProductsService {
     }
 
     async remove(id: string) {
-        // Hard delete - permanently remove from database
-        return this.prisma.product.delete({
+        // Soft delete - mark as inactive instead of removing from database
+        return this.prisma.product.update({
             where: { id },
+            data: { isActive: false },
         });
     }
 

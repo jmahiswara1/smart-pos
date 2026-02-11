@@ -1,67 +1,61 @@
-import { Injectable } from '@nestjs/common';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class UploadService {
-    private supabase: SupabaseClient;
+    private readonly uploadDir = 'uploads';
 
-    constructor() {
-        const supabaseUrl = process.env.SUPABASE_URL;
-        // Prioritize service role key for backend operations to bypass RLS
-        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
-
-        if (supabaseUrl && supabaseKey) {
-            this.supabase = createClient(supabaseUrl, supabaseKey, {
-                auth: {
-                    persistSession: false,
-                    autoRefreshToken: false,
-                },
-            });
+    constructor(private configService: ConfigService) {
+        // Ensure upload directory exists
+        if (!fs.existsSync(this.uploadDir)) {
+            fs.mkdirSync(this.uploadDir, { recursive: true });
         }
     }
 
     async uploadImage(file: Express.Multer.File) {
-        if (!this.supabase) {
-            throw new Error('Supabase not configured');
+        console.log('UploadService: uploadImage called', { fileName: file?.originalname });
+
+        if (!file) {
+            throw new BadRequestException('No file uploaded');
         }
 
-        const bucketName = process.env.SUPABASE_BUCKET || 'product-images';
-        const fileName = `${Date.now()}-${file.originalname}`;
+        const fileName = `${Date.now()}-${file.originalname.replace(/\\s+/g, '-')}`;
+        const filePath = path.join(this.uploadDir, fileName);
 
-        const { data, error } = await this.supabase.storage
-            .from(bucketName)
-            .upload(fileName, file.buffer, {
-                contentType: file.mimetype,
-                upsert: false,
-            });
+        try {
+            fs.writeFileSync(filePath, file.buffer);
 
-        if (error) {
-            throw new Error(`Failed to upload image: ${error.message}`);
+            // Construct public URL
+            // Assuming the uploads are served statically from /uploads
+            const baseUrl = this.configService.get<string>('API_URL') || 'http://localhost:3000';
+            const publicUrl = `${baseUrl}/uploads/${fileName}`;
+
+            return {
+                url: publicUrl,
+                fileName: fileName,
+            };
+        } catch (error) {
+            console.error('Local Upload Error:', error);
+            throw new Error(`Failed to upload image locally: ${error.message}`);
         }
-
-        const {
-            data: { publicUrl },
-        } = this.supabase.storage.from(bucketName).getPublicUrl(fileName);
-
-        return {
-            url: publicUrl,
-            fileName: data.path,
-        };
     }
 
     async deleteImage(fileName: string) {
-        if (!this.supabase) {
-            throw new Error('Supabase not configured');
+        // For local storage, if fileName contains the full URL, extract the filename
+        const actualFileName = path.basename(fileName);
+        const filePath = path.join(this.uploadDir, actualFileName);
+
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+            return { success: true };
+        } catch (error) {
+            console.error('Local Delete Error:', error);
+            // Don't throw error if file doesn't exist or can't be deleted, just log it
+            return { success: false, error: error.message };
         }
-
-        const bucketName = process.env.SUPABASE_BUCKET || 'product-images';
-
-        const { error } = await this.supabase.storage.from(bucketName).remove([fileName]);
-
-        if (error) {
-            throw new Error(`Failed to delete image: ${error.message}`);
-        }
-
-        return { success: true };
     }
 }

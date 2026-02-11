@@ -24,6 +24,7 @@ export class UploadController {
     @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(@UploadedFile() file: Express.Multer.File) {
+        console.log('UploadController: Received file', file ? file.originalname : 'No file');
         return this.uploadService.uploadImage(file);
     }
 
