@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, ConflictException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -10,13 +10,30 @@ import { Prisma } from '@prisma/client';
 export class ProductsService {
     constructor(private prisma: PrismaService) { }
 
+    private readonly logger = new Logger(ProductsService.name);
+
     async create(createProductDto: CreateProductDto) {
-        return this.prisma.product.create({
-            data: createProductDto,
-            include: {
-                category: true,
-            },
-        });
+        try {
+            return await this.prisma.product.create({
+                data: createProductDto,
+                include: {
+                    category: true,
+                },
+            });
+        } catch (error) {
+            this.logger.error(`Failed to create product: ${error.message}`, error.stack);
+
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('Product with this unique field (SKU/Name) already exists');
+                }
+                if (error.code === 'P2003') {
+                    throw new BadRequestException('Invalid category ID');
+                }
+            }
+
+            throw new InternalServerErrorException('Failed to create product');
+        }
     }
 
     async findAll(filterDto: FilterProductDto) {

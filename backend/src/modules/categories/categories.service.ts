@@ -23,8 +23,12 @@ export class CategoriesService {
             where.name = { contains: search, mode: 'insensitive' };
         }
 
+        // Default to active categories if not specified
+        // This ensures soft-deleted categories are hidden by default
         if (isActive !== undefined) {
             where.isActive = isActive;
+        } else {
+            where.isActive = true;
         }
 
         const [data, total] = await Promise.all([
