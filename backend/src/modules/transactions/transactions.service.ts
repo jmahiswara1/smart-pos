@@ -138,7 +138,10 @@ export class TransactionsService {
         const where: any = {};
 
         if (search) {
-            where.transactionNumber = { contains: search, mode: 'insensitive' };
+            where.OR = [
+                { transactionNumber: { contains: search, mode: 'insensitive' } },
+                { customer: { name: { contains: search, mode: 'insensitive' } } },
+            ];
         }
 
         if (paymentStatus) {

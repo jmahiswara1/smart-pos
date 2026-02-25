@@ -39,6 +39,18 @@ export interface Customer {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
+    lastVisit?: string;
+}
+
+export interface TransactionItem {
+    id: string;
+    productId: string;
+    productName: string;
+    productSku: string;
+    quantity: number;
+    unitPrice: number;
+    subtotal: number;
+    product?: Product;
 }
 
 export interface Transaction {
@@ -56,6 +68,8 @@ export interface Transaction {
     createdAt: string;
     updatedAt: string;
     customer?: Customer;
+    items?: TransactionItem[];
+    transactionItems?: TransactionItem[]; // Alias for compatibility if needed
 }
 
 export interface PaginatedResponse<T> {

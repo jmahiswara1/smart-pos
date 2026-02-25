@@ -27,7 +27,10 @@ export class CategoriesService {
         const where: any = {};
 
         if (search) {
-            where.name = { contains: search, mode: 'insensitive' };
+            where.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+            ];
         }
 
         // Default to active categories if not specified
